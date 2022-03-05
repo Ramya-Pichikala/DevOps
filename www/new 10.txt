@@ -1,0 +1,179 @@
+########CREATE JAVA SCRIPT HERE
+jsc <- '
+$(document).ready(function () {
+$(".sidebar-menu").children("li").on("click", function() {
+$("#mult, #single").toggle();
+});
+});
+'
+###### 
+ui2 <- function(){
+  
+  library(shinyLP)
+  
+  fluidPage(theme='flatly.css',useShinyjs(),
+            tags$body(tags$script(type="text/javascript", src = "code.js"),
+                      tags$style(HTML("
+       img {
+      
+  #display: inline-block;
+  list-style-type: none;
+  margin_Top: 0;
+  padding_Bottom:0 ;
+  background-color: #f1f1f1;
+  border: 1px solid #555;
+  clear: right;
+       }  
+       
+        "))
+                      
+            ),
+           # title = 'my app',
+          
+            headerPanel(
+              h3("Warranty ANALYSIS TOOL", align='center')),
+              p("zfdsgdssgfg", align='center'),
+           
+           navbarPage(div(img(id = "abs",src="Valeo.png",height = 60, width = 140),HTML("<sub>THS BG METIER <br/>RELIABILITY & TESTING</sub>")),
+                      
+            # Output: Tabset w/ headers ---
+            tabsetPanel(type = 'pills',id = "tab-panel",
+                        tabPanel('Access to DataBase',icon = icon("database"),
+                                 # Application title
+                                 titlePanel(""),            
+                                 
+                                 
+                                 # Sidebar with controls to select city, month and type of plot
+                                 sidebarLayout(
+                                   div( id ="Sidebar", sidebarPanel(
+                                     
+                                     fluidRow(column(6,
+                                                     textInput( inputId = "Testname",label =  "What is the test name?"),
+                                                     numericInput(inputId = "Samplecount", label = "How many samples tested", value = "", min = 0, step = 1)
+                                     ),
+                                     #inputId = , label = , choices =  c("Cycles, Hours, Months")
+                                     column(6, selectInput(inputId ="Measurement_units", label = "Measurement Units",choices = c("Cycles"= "Cycles:",
+                                                                                                                                 "Months"="Months:", "Hours"="Hours:"), selected = NULL , multiple = FALSE),
+                                            radioButtons(inputId = "Failure_test_Query", label = "All tested to Failure", choices = c("Yes", "No"),selected =  "No", inline = TRUE),
+                                            br(),
+                                            br(),
+                                            br(),
+                                            br(),
+                                            br(),
+                                            br()# ProductSelector
+                                     ),
+                                     column(6, align="center", offset = 3,uiOutput("Fitmethod"),br(),
+                                            br(),
+                                            uiOutput("Distribution")),
+                                     column(6,textInput(inputId = "Part_name", label = "Part Name", value = ""),
+                                            br(),
+                                            br(),
+                                            br(),
+                                            actionButton(inputId = "Plot_Weibull", label = "Plot Weibull",icon = icon("play-circle")),
+                                            textInput(inputId = "Reliab_@", "Reliability At"),
+                                            textInput(inputId = "Change_Beta", label = "Change Beta"),
+                                            checkboxInput(inputId = "ExcelInput_Needed", label = "Want to give excel input ?", value = FALSE)),
+                                     column(6,textInput(inputId = "Customer", label = "Customer"),   
+                                            br(),
+                                            br(),
+                                            br(),
+                                            actionButton("reset", "Clear All", icon("eraser"),
+                                                         style="color: #fff; background-color: #337ab7; border-color: #2e6da4")),
+                                     column(6, textInput("Calculate", label = "Calculate", value = "'"), 
+                                            numericInput(inputId = "Confidence", label = "Confidence Level", value = 0.9),
+                                            column(3,actionButton(inputId = "Download_Excel", label = "Download Excel Template", icon = icon("download"))
+                                                   
+                                            ))))),
+                                   
+                                   
+                                   #Main Panel contains the plot/s
+                                   mainPanel(
+                                     
+                                     ### Button right with LOGOUT
+                                     div(style = "position:absolute; right:10em",
+                                         actionButton('user_name',  textOutput('userName', inline = TRUE), icon = icon("user-circle"))
+                                         
+                                     ),
+                                     
+                                     
+                                     
+                                     tabsetPanel(type = "tabs",
+                                                 tabPanel(title = "Input Table", icon = icon("excel"),
+                                                          
+                                                          #div(style='height:100%; width:100%; overflow: scroll',
+                                                          rHandsontableOutput(outputId = 'Adjusttable'),
+                                                          plotOutput(outputId = "Weibull_Plot")
+                                                          
+                                                          ,dataTableOutput(outputId = "Analysis_Result"),
+                                                          plotlyOutput(outputId = "plot3", width = "100%")),
+                                                 
+                                                 
+                                                 
+                                                 
+                                                 tabPanel("Intercept",textOutput('text2'),
+                                                          tags$head(tags$style("#text2{color:#00b6ed;
+                                                                               font-size: 30px;
+                                                                               font-style: italic;
+                                                                                                 }")),
+                                                          
+                                                          htmlOutput(outputId = "Text2"),
+                                                          tags$head(tags$style("#Text2{color: black;
+                                                         font-size: 18px;
+                                                         font-style: arial; }")),
+                                                          textOutput('text21'),
+                                                          tags$head(tags$style("#text21{color:#00b6ed;
+                                                                               font-size: 30px;
+                                                                               font-style: bold;
+                                                                                                 }")),
+                                                          htmlOutput(outputId = "Text3"),
+                                                          tags$head(tags$style("#Text3{color: black;
+                                                        font-size: 18px; font-style: arial;}"))
+                                                 )
+                                     )))),
+            tabPanel('About this tool',icon = icon("question-circle"),
+                     h2("Weibull Test Tool"),
+                     
+                     p("Tool developed by ",
+                       a(href="www.valeo.com", "Valeo"), "using",
+                       a(href = "https://www.r-project.org", "R.")),
+                     br(),
+                     p(strong("Version 0.3"),  "July 17, 2018"),
+                     p("Support: Vishnu Raghavan", a(href="mailto:vishnu.raghavan@valeo.com", "vishnu.raghavan@valeo.com")),
+                     br(),
+                     
+                     h3("How to use this tool"),
+                     
+                     p(""),
+                     p("If no data are loaded, the tool's console will remain empty."),
+                     p("The data should be in the prescribed RDBMS format, as generated by the appropriate script"),
+                     
+                     h3("Selection and Transformation Features"),
+                     tags$ul(
+                       tags$li("Use the 'Choose File' button in order to load the Valeo Excel database"),
+                       tags$li("Select the field of the experiment of interest: Customer, Product, Project, Speficication"
+                       )
+                     ),
+                     h3("Plot Features"),
+                     tags$ul(
+                       tags$li("The resulting plot is highly responsive"),
+                       tags$li("Placing the cursor over the lines returns the values of both axes"),
+                       tags$li("Clicking the plot legend, lines can be removed from the plot"),
+                       tags$li("Zoom in and out, restrict the axis domain etc. are possible"),
+                       tags$li("Clicking on the first icon from left position over the plot one can save the
+                             graphic in png format"),
+                       tags$li("Clicking on the toggle symbol will collapse and restore the sidebar"),
+                       tags$li("Clicking on the clear button will remove all inputs")
+                     )  ) ,
+            tabPanel('Suggest',icon = icon("envelope-square")),
+            tabPanel('Version', icon = icon("info-circle"))
+            
+            
+  )
+  
+  
+  ))}
+  
+  
+  
+  
+  
